@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#06060B">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Çeldirici</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Sora:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow column floating over slow neon light; glass panels, one hero card that flips in 3D. Single dark look by choice. */
+:root{
+  --void:#06060B; --glass:rgba(255,255,255,.055); --glass-2:rgba(255,255,255,.09); --line:rgba(255,255,255,.09); --line-2:rgba(255,255,255,.18);
+  --text:#F3F2FA; --muted:#8E8CA8;
+  --pink:#FF3D8B; --cyan:#22D3EE; --lime:#B6FF4A; --amber:#FFC24B;
+  --grad:linear-gradient(120deg,var(--pink),#A855F7 50%,var(--cyan));
+  --display:"Unbounded", "Arial Black", system-ui, sans-serif;
+  --body:"Sora", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--void);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px));
+  -webkit-tap-highlight-color:transparent;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.bg i{position:absolute;border-radius:50%;filter:blur(80px);opacity:.55}
+.bg i:nth-child(1){width:60vmax;height:60vmax;background:var(--pink);top:-30vmax;left:-25vmax;animation:drift1 18s ease-in-out infinite alternate}
+.bg i:nth-child(2){width:55vmax;height:55vmax;background:#6D28D9;bottom:-30vmax;right:-25vmax;animation:drift2 22s ease-in-out infinite alternate}
+.bg i:nth-child(3){width:35vmax;height:35vmax;background:var(--cyan);top:40%;left:55%;opacity:.28;animation:drift1 26s ease-in-out infinite alternate-reverse}
+.bg::after{content:"";position:absolute;inset:0;background:
+  linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px) 0 0/44px 44px,
+  linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px) 0 0/44px 44px;
+  mask-image:radial-gradient(ellipse at center,#000 30%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse at center,#000 30%,transparent 75%)}
+@keyframes drift1{to{transform:translate(12vmax,8vmax) scale(1.1)}}
+@keyframes drift2{to{transform:translate(-10vmax,-12vmax) scale(.9)}}
+#app{max-width:520px;margin:0 auto;padding-block:24px 120px;display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-size:clamp(2.2rem,11vw,3.2rem);font-weight:800;line-height:.95;letter-spacing:-.04em}
+h2{font-size:1.55rem;font-weight:700;line-height:1.1;letter-spacing:-.02em}
+h3{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.18em;color:var(--muted);font-family:var(--body)}
+p{margin:0}
+.muted{color:var(--muted)}
+.brand{display:flex;flex-direction:column;gap:12px}
+.brand h1 span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tag{max-width:36ch;color:var(--muted)}
+section{display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--glass);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.plist{display:flex;flex-direction:column;gap:8px}
+.pin{flex:1;min-width:0;background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);color:var(--text);font:inherit;font-weight:500;border-radius:14px;padding:12px 14px;transition:border-color .2s, box-shadow .2s}
+.pin:focus{outline:none;border-color:var(--pink);box-shadow:0 0 0 4px rgba(255,61,139,.15)}
+.num{width:26px;text-align:center;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:600;font-size:13px}
+button{font:inherit;cursor:pointer;border:none;color:inherit;background:none}
+button:focus-visible,.card:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.x{width:40px;height:40px;border-radius:12px;color:var(--muted);font-size:20px;transition:background .2s,color .2s}
+.x:hover:not(:disabled){background:var(--glass-2);color:var(--pink)}
+.x:disabled{opacity:.25;cursor:default}
+.ghost{border:1px dashed var(--line-2);border-radius:14px;padding:12px;color:var(--muted);font-weight:600;transition:color .2s,border-color .2s}
+.ghost:hover{color:var(--text);border-color:var(--cyan)}
+.step{display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:14px;padding:4px}
+.step button{width:36px;height:36px;border-radius:10px;font-size:20px;font-weight:600}
+.step button:hover:not(:disabled){background:var(--glass-2)}
+.step button:disabled{opacity:.25;cursor:default}
+.step b{min-width:26px;text-align:center;font-variant-numeric:tabular-nums;font-size:17px;font-family:var(--display)}
+.lbl{display:flex;flex-direction:column;gap:2px;min-width:0}
+.lbl strong{font-weight:600}
+.lbl small{color:var(--muted);font-size:12.5px}
+.tog{width:52px;height:30px;border-radius:99px;background:rgba(0,0,0,.35);border:1px solid var(--line);position:relative;flex:none;transition:background .25s}
+.tog::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--muted);transition:transform .25s cubic-bezier(.3,1.4,.5,1), background .25s}
+.tog[aria-checked="true"]{background:var(--grad);border-color:transparent;box-shadow:0 0 18px rgba(255,61,139,.45)}
+.tog[aria-checked="true"]::after{transform:translateX(22px);background:#fff}
+.tog:disabled{opacity:.3}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--glass);border-radius:99px;padding:8px 14px;font-weight:600;font-size:13.5px;color:var(--muted);transition:all .2s}
+.chip[aria-pressed="true"]{color:#fff;border-color:transparent;background:linear-gradient(var(--void),var(--void)) padding-box, var(--grad) border-box;border:1.5px solid transparent;box-shadow:0 0 16px rgba(168,85,247,.35)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:14px;padding:4px;gap:4px}
+.seg button{padding:10px 4px;border-radius:10px;font-weight:600;color:var(--muted);font-size:13.5px;transition:all .2s}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--void)}
+textarea{width:100%;box-sizing:border-box;min-height:110px;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:14px;color:var(--text);font:inherit;padding:12px;resize:vertical}
+textarea:focus{outline:none;border-color:var(--pink)}
+details summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:10px}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";color:var(--muted);font-size:20px;line-height:1}
+details[open] summary::after{content:"–"}
+.dock{position:fixed;left:0;right:0;bottom:0;padding:14px max(16px, env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px, env(safe-area-inset-left,0px));
+  background:linear-gradient(to top, var(--void) 55%, transparent);z-index:5}
+.dock>div{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+.cta{position:relative;width:100%;background:var(--grad);background-size:200% 100%;color:#fff;font-family:var(--display);font-weight:700;font-size:1rem;letter-spacing:-.01em;padding:17px;border-radius:18px;
+  box-shadow:0 10px 30px -8px rgba(255,61,139,.6),inset 0 1px 0 rgba(255,255,255,.3);transition:transform .12s, background-position .5s, opacity .2s;animation:sheen 6s linear infinite}
+@keyframes sheen{to{background-position:200% 0}}
+.cta:active{transform:scale(.97)}
+.cta:disabled{opacity:.3;cursor:default;box-shadow:none;animation:none}
+.cta.alt{background:var(--glass-2);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);box-shadow:none;animation:none;font-family:var(--body);font-weight:600}
+.err{color:var(--pink);font-size:13.5px;text-align:center;min-height:1.2em}
+
+/* reveal card: 3D flip */
+.handoff{display:flex;flex-direction:column;gap:6px;text-align:center;align-items:center}
+.handoff .who{font-family:var(--display);font-size:clamp(2rem,10vw,2.8rem);font-weight:800;letter-spacing:-.04em;line-height:1.05;word-break:break-word;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.card{aspect-ratio:3/4;max-width:100%;width:min(320px,100%);margin:0 auto;perspective:1200px;user-select:none;-webkit-user-select:none;touch-action:none;cursor:pointer;border-radius:26px}
+.inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .32s cubic-bezier(.2,.8,.3,1.15)}
+.card.on .inner{transform:rotateY(180deg)}
+.back,.face{position:absolute;inset:0;border-radius:26px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;padding:24px;text-align:center;box-sizing:border-box;overflow:hidden}
+.back{background:linear-gradient(rgba(10,10,18,.75),rgba(10,10,18,.75)) padding-box, var(--grad) border-box;border:1.5px solid transparent;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 30px 60px -20px rgba(168,85,247,.55)}
+.back::before{content:"";position:absolute;inset:-40%;background:conic-gradient(from 0deg,transparent 0 70%,rgba(255,255,255,.12) 80%,transparent 90%);animation:spin 5s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.back>*{position:relative}
+.seal{width:84px;height:84px;border-radius:24px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:36px;background:var(--grad);color:#fff;box-shadow:0 0 40px rgba(255,61,139,.55);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.07);box-shadow:0 0 60px rgba(34,211,238,.6)}}
+.back strong{font-family:var(--display);font-weight:700;font-size:1.05rem}
+.face{transform:rotateY(180deg);background:radial-gradient(circle at 30% 20%,rgba(255,61,139,.35),transparent 55%),radial-gradient(circle at 80% 90%,rgba(34,211,238,.35),transparent 55%),#0E0D18;border:1.5px solid var(--line-2);box-shadow:0 30px 60px -20px rgba(34,211,238,.5)}
+.face .w{font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,8.5vw,2.5rem);line-height:1.05;letter-spacing:-.03em;word-break:break-word;color:#fff;text-shadow:0 0 30px rgba(255,255,255,.35)}
+.face small{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.face .none{font-size:14px;max-width:22ch;color:var(--muted)}
+.progress{display:flex;gap:6px;justify-content:center}
+.progress i{width:22px;height:4px;border-radius:4px;background:var(--glass-2)}
+.progress i.d{background:var(--muted)}
+.progress i.c{background:var(--grad);box-shadow:0 0 10px var(--pink)}
+
+/* discuss */
+.order{display:flex;flex-direction:column;gap:6px;counter-reset:o;padding:0;margin:0}
+.order li{list-style:none;display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:14px;font-weight:600;counter-increment:o}
+.order li::before{content:counter(o,decimal-leading-zero);font-family:var(--display);color:var(--muted);font-size:12px;width:22px;font-variant-numeric:tabular-nums}
+.order li.first{background:linear-gradient(rgba(14,13,24,.85),rgba(14,13,24,.85)) padding-box,var(--grad) border-box;border:1.5px solid transparent;box-shadow:0 0 24px rgba(255,61,139,.25)}
+.order li.first::before{color:var(--pink)}
+.round{font-family:var(--display);font-weight:700;font-size:.75rem;letter-spacing:.15em;color:var(--cyan)}
+.rules{color:var(--muted);font-size:14px}
+.linkbtn{color:var(--cyan);font-weight:600;padding:6px 0;align-self:flex-start;border-bottom:1px solid rgba(34,211,238,.4)}
+
+/* vote */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.pbtn{padding:18px 10px;border-radius:16px;background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);font-weight:600;font-size:15.5px;word-break:break-word;transition:all .2s}
+.pbtn:hover:not(:disabled){border-color:var(--line-2)}
+.pbtn[aria-pressed="true"]{border-color:var(--pink);background:rgba(255,61,139,.14);box-shadow:0 0 24px rgba(255,61,139,.4)}
+.pbtn.dead{opacity:.3;text-decoration:line-through;cursor:default}
+
+/* role reveal: neon glitch */
+.stampwrap{display:grid;place-items:center;padding:36px 0}
+.stamp{font-family:var(--display);font-weight:800;font-size:clamp(2rem,10vw,2.9rem);letter-spacing:-.03em;text-transform:uppercase;position:relative;animation:glitchIn .6s steps(6) both}
+.stamp.civ{color:var(--lime);text-shadow:0 0 24px rgba(182,255,74,.7)}
+.stamp.imp{color:var(--pink);text-shadow:0 0 24px rgba(255,61,139,.8)}
+.stamp.wht{color:var(--amber);text-shadow:0 0 24px rgba(255,194,75,.7)}
+@keyframes glitchIn{0%{opacity:0;transform:translateX(-14px) skewX(20deg);filter:blur(6px)}
+  30%{opacity:1;transform:translateX(10px) skewX(-12deg);text-shadow:-4px 0 var(--cyan),4px 0 var(--pink)}
+  60%{transform:translateX(-4px) skewX(4deg);text-shadow:3px 0 var(--cyan),-3px 0 var(--pink)}
+  100%{transform:none;filter:none}}
+.center{text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+.bigword{font-family:var(--display);font-weight:800;font-size:2rem;letter-spacing:-.03em;padding:14px 26px;border-radius:18px;background:linear-gradient(#0E0D18,#0E0D18) padding-box,var(--grad) border-box;border:1.5px solid transparent;box-shadow:0 0 40px rgba(168,85,247,.45)}
+
+/* end */
+.words{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.wbox{border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:6px;min-width:0;background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line)}
+.wbox small{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+.wbox b{font-family:var(--display);font-size:1.25rem;line-height:1.1;letter-spacing:-.02em;word-break:break-word}
+.wbox.c{border-color:rgba(182,255,74,.45);box-shadow:inset 0 0 30px rgba(182,255,74,.08)} .wbox.c b{color:var(--lime)}
+.wbox.i{border-color:rgba(255,61,139,.5);box-shadow:inset 0 0 30px rgba(255,61,139,.1)} .wbox.i b{color:var(--pink)}
+.roster{display:flex;flex-direction:column;gap:6px}
+.roster div{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:var(--glass);border:1px solid var(--line);border-radius:14px}
+.roster span{min-width:0;word-break:break-word}
+.pill{font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:99px;white-space:nowrap}
+.pill.civ{background:rgba(182,255,74,.12);color:var(--lime)}
+.pill.imp{background:rgba(255,61,139,.15);color:var(--pink)}
+.pill.wht{background:rgba(255,194,75,.14);color:var(--amber)}
+.winner{font-family:var(--display);font-weight:800;font-size:clamp(2rem,10vw,2.8rem);line-height:1;letter-spacing:-.04em;text-align:center;padding-top:12px;animation:glitchIn .6s steps(6) both}
+.winner.civ{color:var(--lime);text-shadow:0 0 30px rgba(182,255,74,.6)}
+.winner.imp{color:var(--pink);text-shadow:0 0 30px rgba(255,61,139,.7)}
+.winner.wht{color:var(--amber);text-shadow:0 0 30px rgba(255,194,75,.6)}
+#app>*{animation:rise .4s cubic-bezier(.2,.8,.3,1) both}
+#app>*:nth-child(2){animation-delay:.04s}#app>*:nth-child(3){animation-delay:.08s}#app>*:nth-child(4){animation-delay:.12s}#app>*:nth-child(5){animation-delay:.16s}
+@keyframes rise{from{transform:translateY(10px)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
+<div id="app"></div>
+<div class="dock" id="dock" hidden><div id="dockIn"></div></div>
+
+<script>
+const PAIRS = {
+ "Yemek & İçecek":[["Simit","Poğaça",2],["Lahmacun","Pide",2],["Çay","Kahve",1],["Baklava","Künefe",2],["Ayran","Kefir",2],["Döner","İskender",2],["Mantı","Ravioli",2],["Köfte","Hamburger",1],["Kumpir","Patates kızartması",1],["Menemen","Omlet",2],["Sucuk","Salam",2],["Börek","Gözleme",2],["Pizza","Lahmacun",1],["Sütlaç","Muhallebi",2],["Kokoreç","Midye dolma",1],["Islak hamburger","Tost",1],["Su böreği","Lazanya",2],["Karpuz","Kavun",2],["Limonata","Şalgam",1],["Çiğ köfte","İçli köfte",2],["Kahvaltı","Brunch",2],["Dondurma","Milkshake",1]],
+ "İstanbul":[["Kadıköy","Beşiktaş",2],["Taksim","Eminönü",1],["Vapur","Deniz otobüsü",2],["Marmaray","Metrobüs",1],["Galata Kulesi","Kız Kulesi",2],["Kapalıçarşı","Mısır Çarşısı",2],["Büyükada","Heybeliada",2],["Ayasofya","Sultanahmet Camii",2],["İstiklal Caddesi","Bağdat Caddesi",2],["Moda","Cihangir",2],["Dolmuş","Minibüs",2],["Taksi","Scooter",1],["Belgrad Ormanı","Emirgan Korusu",2],["Boğaz Köprüsü","Galata Köprüsü",2]],
+ "Kampüs & Okul":[["Vize","Final",2],["Hoca","Asistan",2],["Kütüphane","Çalışma salonu",2],["Yurt","Öğrenci evi",2],["Kantin","Yemekhane",2],["Erasmus","Yaz okulu",1],["Staj","Part-time iş",1],["Sunum","Ödev",1],["Not ortalaması","Transkript",2],["Kulüp","Topluluk",2],["Servis","Ring",2],["Mezuniyet","Kep atma",2],["Sınav haftası","Bayram tatili",1],["Devamsızlık","Kopya",1]],
+ "Ev & Eşya":[["Yastık","Yorgan",2],["Buzdolabı","Derin dondurucu",2],["Çaydanlık","Cezve",2],["Şemsiye","Yağmurluk",1],["Diş fırçası","Tarak",1],["Çamaşır makinesi","Bulaşık makinesi",2],["Kumanda","Telefon",1],["Halı","Kilim",2],["Ayna","Pencere",1],["Kanepe","Koltuk",2],["Mum","El feneri",1],["Anahtar","Kilit",2],["Şarj aleti","Powerbank",2]],
+ "Spor & Hobi":[["Futbol","Basketbol",1],["Voleybol","Hentbol",2],["Tavla","Okey",2],["Satranç","Dama",2],["Yüzme","Sörf",1],["Koşu","Bisiklet",1],["Gitar","Bağlama",2],["Kamp","Piknik",2],["Fitness","Pilates",2],["Kaykay","Paten",2],["Bulmaca","Sudoku",2],["Karaoke","Konser",1],["Sinema","Tiyatro",2]],
+ "Meslekler":[["Doktor","Hemşire",2],["Diş hekimi","Eczacı",2],["Avukat","Hakim",2],["Pilot","Kaptan",2],["Garson","Barista",2],["Öğretmen","Müdür",1],["Polis","Bekçi",2],["İtfaiyeci","Cankurtaran",1],["Aşçı","Pastacı",2],["Berber","Kuaför",2],["Muhasebeci","Bankacı",2],["Gümrük müşaviri","Nakliyeci",2],["Mimar","Mühendis",2],["YouTuber","Yayıncı",2]],
+ "Hayvanlar":[["Kedi","Aslan",1],["Köpek","Kurt",2],["Martı","Güvercin",2],["Kaplumbağa","Kirpi",1],["Arı","Sinek",1],["At","Eşek",2],["Yunus","Köpekbalığı",1],["Tavuk","Hindi",2],["Timsah","Kertenkele",2],["Baykuş","Kartal",1],["Papağan","Muhabbet kuşu",2],["Tavşan","Hamster",1],["İnek","Manda",2]],
+ "Seyahat":[["Uçak","Helikopter",1],["Otobüs","Tren",1],["Otel","Pansiyon",2],["Bavul","Sırt çantası",2],["Pasaport","Kimlik",2],["Plaj","Havuz",1],["Çadır","Karavan",2],["Kapadokya","Pamukkale",2],["Antalya","Bodrum",2],["Gemi","Yat",2]]
+};
+const CUSTOM_CAT = "Bizim Grup";
+
+let S, G, screen, sel, err = "";
+const store = {
+  get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+const esc = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const shuffle = a => {a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const maxImp = () => Math.max(1, Math.floor((S.players.length-1)/2) - (S.white?1:0) || 1);
+
+function defaults(){
+  const saved = store.get("celdirici-setup");
+  const base = {players:["Ayşe","Mert","Deniz","Can","Ece"].map(n=>({name:n})),imp:1,white:false,cats:Object.keys(PAIRS),diff:"mix",custom:[]};
+  return saved ? Object.assign(base, saved) : base;
+}
+function persist(){ store.set("celdirici-setup", S); }
+
+function allCats(){ return S.custom.length ? [...Object.keys(PAIRS), CUSTOM_CAT] : Object.keys(PAIRS); }
+function poolPairs(){
+  let pool = [];
+  for(const c of S.cats){
+    const src = c===CUSTOM_CAT ? S.custom.map(p=>[p[0],p[1],2]) : (PAIRS[c]||[]);
+    pool.push(...src);
+  }
+  if(S.diff==="easy") pool = pool.filter(p=>p[2]===1);
+  if(S.diff==="hard") pool = pool.filter(p=>p[2]===2);
+  return pool;
+}
+
+let used = new Set();
+function startGame(){
+  const names = S.players.map(p=>p.name.trim());
+  if(names.some(n=>!n)) return fail("Her oyuncuya bir isim yaz.");
+  if(new Set(names.map(n=>n.toLocaleLowerCase("tr"))).size!==names.length) return fail("İki oyuncu aynı isimde. Birini değiştir.");
+  if(S.cats.length===0) return fail("En az bir kategori seç.");
+  let pool = poolPairs();
+  if(!pool.length) return fail("Bu kategori ve zorlukta çift yok. Zorluğu 'Karışık' yap.");
+  let fresh = pool.filter(p=>!used.has(p[0]+"|"+p[1]));
+  if(!fresh.length){ used.clear(); fresh = pool; }
+  const pair = fresh[Math.floor(Math.random()*fresh.length)];
+  used.add(pair[0]+"|"+pair[1]);
+  const [civW, impW] = Math.random()<.5 ? [pair[0],pair[1]] : [pair[1],pair[0]];
+  const order = shuffle(names.map((_,i)=>i));
+  const roles = names.map(()=>"civ");
+  let k=0;
+  for(let i=0;i<S.imp;i++) roles[order[k++]]="imp";
+  if(S.white) roles[order[k++]]="wht";
+  G = {civW, impW, round:1, turn:0, seen:false, players:names.map((n,i)=>({name:n, role:roles[i], word: roles[i]==="civ"?civW: roles[i]==="imp"?impW:null, alive:true, out:null}))};
+  persist(); err=""; go("pass");
+}
+function fail(m){ err=m; render(); }
+function go(s){ screen=s; sel=null; render(); window.scrollTo(0,0); }
+
+function counts(){
+  const a = G.players.filter(p=>p.alive);
+  return {civ:a.filter(p=>p.role==="civ").length, bad:a.filter(p=>p.role!=="civ").length};
+}
+function checkWin(){
+  const c = counts();
+  if(c.bad===0) return "civ";
+  if(c.civ<=c.bad) return "imp";
+  return null;
+}
+function speakingOrder(){
+  const alive = G.players.map((p,i)=>i).filter(i=>G.players[i].alive);
+  const starters = alive.filter(i=>G.players[i].role!=="wht");
+  const s = starters[Math.floor(Math.random()*starters.length)];
+  const at = alive.indexOf(s);
+  return alive.slice(at).concat(alive.slice(0,at));
+}
+
+/* ---------- screens ---------- */
+function vSetup(){
+  const n = S.players.length, mi = maxImp();
+  if(S.imp>mi) S.imp=mi;
+  const whiteOk = n>=5;
+  if(!whiteOk) S.white=false;
+  return `
+  <div class="brand"><h1>Çeldi<span>rici</span></h1>
+  <p class="tag">Herkes bir kelime alır. Bazılarınınki çok yakın ama farklı. Kimse kendi rolünü bilmez, imposter bile.</p></div>
+
+  <section><div class="row between"><h3>Oyuncular · ${n}</h3><span class="muted" style="font-size:13px">Telefon bu sırayla dolaşır</span></div>
+  <div class="plist">${S.players.map((p,i)=>`
+    <div class="row"><span class="num">${i+1}</span>
+    <input class="pin" id="p${i}" data-i="${i}" value="${esc(p.name)}" maxlength="18" aria-label="Oyuncu ${i+1} adı" autocomplete="off">
+    <button class="x" data-act="rm" data-i="${i}" aria-label="${esc(p.name)} oyuncusunu çıkar" ${n<=3?"disabled":""}>×</button></div>`).join("")}
+  ${n<12?`<button class="ghost" data-act="add">+ Oyuncu ekle</button>`:""}</div></section>
+
+  <section><h3>Roller</h3><div class="panel">
+    <div class="row between"><div class="lbl"><strong>İmposter sayısı</strong><small>Yakın ama farklı kelime alırlar</small></div>
+    <div class="step"><button data-act="imp-" ${S.imp<=1?"disabled":""} aria-label="Azalt">−</button><b>${S.imp}</b><button data-act="imp+" ${S.imp>=mi?"disabled":""} aria-label="Artır">+</button></div></div>
+    <div class="row between"><div class="lbl"><strong>Boş Kart</strong><small>${whiteOk?"Biri hiç kelime almaz, blöf yapar. Elenirse kelimeyi tahmin edip kazanabilir.":"En az 5 oyuncu gerekir"}</small></div>
+    <button class="tog" role="switch" aria-checked="${S.white}" data-act="white" ${whiteOk?"":"disabled"} aria-label="Boş Kart"></button></div>
+  </div></section>
+
+  <section><h3>Kategoriler</h3><div class="chips">${allCats().map(c=>`<button class="chip" data-act="cat" data-c="${esc(c)}" aria-pressed="${S.cats.includes(c)}">${esc(c)}</button>`).join("")}</div></section>
+
+  <section><h3>Zorluk</h3><div class="seg">
+    ${[["easy","Kolay"],["mix","Karışık"],["hard","Çok yakın"]].map(([k,l])=>`<button data-act="diff" data-d="${k}" aria-pressed="${S.diff===k}">${l}</button>`).join("")}
+  </div><p class="muted" style="font-size:13px">${S.diff==="easy"?"Kedi / Aslan gibi: fark kolay sezilir.":S.diff==="hard"?"Lahmacun / Pide gibi: imposter kendini çok geç fark eder.":"İkisi karışık gelir."}</p></section>
+
+  <section><details class="panel" ${S.custom.length?"":""}><summary>Kendi çiftlerinizi ekleyin ${S.custom.length?`<span class="muted" style="font-weight:500">· ${S.custom.length}</span>`:""}</summary>
+    <p class="muted" style="font-size:13px">Her satıra bir çift: <b>kelime / kelime</b>. Grubunuzun iç şakaları için ideal. "${CUSTOM_CAT}" kategorisi olarak gelir.</p>
+    <textarea id="customTa" placeholder="Yeni bina / Eski bina&#10;Ahmet Hoca / Mehmet Hoca">${esc(S.custom.map(p=>p.join(" / ")).join("\n"))}</textarea>
+    <button class="ghost" data-act="saveCustom">Çiftleri kaydet</button>
+  </details></section>`;
+}
+function dSetup(){ return `<p class="err">${esc(err)}</p><button class="cta" data-act="start">Kartları dağıt</button>`; }
+
+function vPass(peek){
+  const total = G.players.length;
+  const i = peek!=null ? peek : G.turn;
+  const p = G.players[i];
+  return `
+  ${peek==null?`<div class="progress" aria-label="${i+1}. oyuncu, toplam ${total}">${G.players.map((_,j)=>`<i class="${j<i?"d":j===i?"c":""}"></i>`).join("")}</div>`:""}
+  <div class="handoff"><p class="muted">${peek!=null?"Sadece bu kişi baksın":"Telefonu ver"}</p><div class="who">${esc(p.name)}</div></div>
+  <div class="card" id="card" tabindex="0" role="button" aria-label="Kelimeni görmek için basılı tut">
+    <div class="inner"><div class="back"><div class="seal">?</div><strong>Basılı tut</strong><span class="muted" style="font-size:13px">Bırakınca kapanır</span></div>
+    <div class="face">${p.word?`<small>Kelimen</small><div class="w">${esc(p.word)}</div>`:`<small>Kelimen</small><div class="w">—</div><p class="none">Sende kelime yok. Dinle, uydur, belli etme.</p>`}</div></div>
+  </div>
+  <p class="muted" style="text-align:center;font-size:13px">Herkesin kelimesi aynı olmayabilir. Seninki farklı mı, sen de bilmiyorsun.</p>`;
+}
+function dPass(peek){
+  const last = G.turn===G.players.length-1;
+  if(peek!=null) return `<button class="cta" data-act="peekDone" ${G.seen?"":"disabled"}>Gördüm, kapat</button>`;
+  return `<button class="cta" data-act="next" ${G.seen?"":"disabled"}>${last?"Gördüm, tartışmayı başlat":"Gördüm, sıradakine ver"}</button>`;
+}
+
+function vDiscuss(){
+  if(!G.order || G.orderRound!==G.round){ G.order = speakingOrder(); G.orderRound=G.round; }
+  const c = counts();
+  return `
+  <div class="row between"><span class="round">TUR ${G.round}</span><span class="muted" style="font-size:13px">${G.players.filter(p=>p.alive).length} kişi masada</span></div>
+  <h2>Sırayla kelimeni anlat</h2>
+  <div class="rules"><p>Herkes tek kelime ya da kısa bir ipucu söyler. Çok açık verirsen imposter kelimeyi çözer. Çok kapalı verirsen şüphe sende toplanır.</p></div>
+  <ol class="order">${G.order.map((i,k)=>`<li class="${k===0?"first":""}">${esc(G.players[i].name)}${k===0?' <span style="font-weight:500;margin-left:auto;font-size:13px">başlıyor</span>':""}</li>`).join("")}</ol>
+  <button class="linkbtn" data-act="peekPick">Kelimesini unutan var mı?</button>`;
+}
+function dDiscuss(){ return `<button class="cta" data-act="toVote">Oylamaya geç</button>`; }
+
+function vPeekPick(){
+  return `<h2>Kim tekrar bakacak?</h2>
+  <div class="grid">${G.players.map((p,i)=>p.alive?`<button class="pbtn" data-act="peek" data-i="${i}">${esc(p.name)}</button>`:"").join("")}</div>`;
+}
+function dPeekPick(){ return `<button class="cta alt" data-act="back">Vazgeç</button>`; }
+
+function vVote(){
+  return `<span class="round">TUR ${G.round} · OYLAMA</span><h2>Kim elensin?</h2>
+  <p class="muted">Sayarak ya da parmakla gösterip karar verin. En çok oy alanı seçin.</p>
+  <div class="grid">${G.players.map((p,i)=>`<button class="pbtn ${p.alive?"":"dead"}" ${p.alive?`data-act="pick" data-i="${i}"`:"disabled"} aria-pressed="${sel===i}">${esc(p.name)}</button>`).join("")}</div>`;
+}
+function dVote(){
+  return sel==null ? `<button class="cta" disabled>Bir oyuncu seç</button><button class="cta alt" data-act="back">Tartışmaya dön</button>`
+    : `<button class="cta" data-act="eliminate">${esc(G.players[sel].name)} elensin</button><button class="cta alt" data-act="unpick">Vazgeç</button>`;
+}
+
+function vReveal(){
+  const p = G.players[G.elim];
+  const t = {civ:["Sivil","civ","Masum birini yolladınız."],imp:["İmposter","imp","Yakaladınız! Kelimesi sizinkinden farklıydı."],wht:["Boş Kart","wht","Kelimesi yoktu. Son bir şansı var."]}[p.role];
+  return `<div class="center"><p class="muted">${esc(p.name)} elendi. Rolü:</p></div>
+  <div class="stampwrap"><div class="stamp ${t[1]}">${t[0]}</div></div>
+  <div class="center"><p>${t[2]}</p></div>`;
+}
+function dReveal(){
+  const p = G.players[G.elim];
+  if(p.role==="wht") return `<button class="cta" data-act="toGuess">Tahmin hakkını kullan</button>`;
+  return checkWin() ? `<button class="cta" data-act="end">Sonucu gör</button>` : `<button class="cta" data-act="nextRound">Sonraki tur</button>`;
+}
+
+function vGuess(){
+  const p = G.players[G.elim];
+  return `<span class="round">SON ŞANS</span><h2>${esc(p.name)}, sivillerin kelimesi ne?</h2>
+  <p class="muted">Yüksek sesle söylesin. Sonra kelimeyi açın ve karar verin.</p>
+  ${G.guessShown?`<div class="center" style="padding:20px 0"><small class="muted">Sivillerin kelimesi</small><div class="bigword">${esc(G.civW)}</div></div>`:""}`;
+}
+function dGuess(){
+  return G.guessShown ? `<button class="cta" data-act="wGuess" data-r="1">Bildi</button><button class="cta alt" data-act="wGuess" data-r="0">Bilemedi</button>`
+    : `<button class="cta" data-act="showWord">Söyledi, kelimeyi göster</button>`;
+}
+
+function vEnd(){
+  const w = G.winner;
+  const t = {civ:"Siviller kazandı",imp:S.imp>1||S.white?"Çeldiriciler kazandı":"İmposter kazandı",wht:"Boş Kart kazandı"}[w];
+  const rl = {civ:"Sivil",imp:"İmposter",wht:"Boş Kart"};
+  return `<div class="winner ${w}">${t}</div>
+  <div class="words"><div class="wbox c"><small>Sivil kelime</small><b>${esc(G.civW)}</b></div><div class="wbox i"><small>İmposter kelime</small><b>${esc(G.impW)}</b></div></div>
+  <section><h3>Kim neydi</h3><div class="roster">${G.players.map(p=>`<div><span><b>${esc(p.name)}</b>${p.out?` <span class="muted" style="font-size:13px">· ${p.out}. turda elendi</span>`:""}</span><span class="pill ${p.role}">${rl[p.role]}</span></div>`).join("")}</div></section>`;
+}
+function dEnd(){ return `<button class="cta" data-act="start">Aynı ekiple yeni el</button><button class="cta alt" data-act="setup">Ayarlar</button>`; }
+
+function render(){
+  const app = document.getElementById("app"), dock=document.getElementById("dock"), din=document.getElementById("dockIn");
+  let v="", d="";
+  switch(screen){
+    case "setup": v=vSetup(); d=dSetup(); break;
+    case "pass": v=vPass(); d=dPass(); break;
+    case "peek": v=vPass(G.peekI); d=dPass(G.peekI); break;
+    case "discuss": v=vDiscuss(); d=dDiscuss(); break;
+    case "peekPick": v=vPeekPick(); d=dPeekPick(); break;
+    case "vote": v=vVote(); d=dVote(); break;
+    case "reveal": v=vReveal(); d=dReveal(); break;
+    case "guess": v=vGuess(); d=dGuess(); break;
+    case "end": v=vEnd(); d=dEnd(); break;
+  }
+  app.innerHTML=v; din.innerHTML=d; dock.hidden=!d;
+  app.style.paddingBottom = d ? (din.children.length>1?"170px":"120px") : "";
+  bindCard();
+}
+
+function bindCard(){
+  const card = document.getElementById("card"); if(!card) return;
+  const on = e=>{ e.preventDefault(); if(e.pointerId!=null){try{card.setPointerCapture(e.pointerId)}catch(_){}} card.classList.add("on"); if(!G.seen){G.seen=true; const b=document.querySelector("#dockIn .cta"); if(b) b.disabled=false;} };
+  const off = ()=>card.classList.remove("on");
+  card.addEventListener("pointerdown",on);
+  ["pointerup","pointerleave","pointercancel"].forEach(t=>card.addEventListener(t,off));
+  card.addEventListener("contextmenu",e=>e.preventDefault());
+  card.addEventListener("keydown",e=>{ if(e.key===" "||e.key==="Enter") on(e); });
+  card.addEventListener("keyup",off);
+}
+
+document.addEventListener("input",e=>{
+  if(e.target.classList.contains("pin")){ S.players[+e.target.dataset.i].name=e.target.value; persist(); }
+});
+document.addEventListener("click",e=>{
+  const b = e.target.closest("[data-act]"); if(!b||b.disabled) return;
+  const a=b.dataset.act, i=+b.dataset.i;
+  switch(a){
+    case "add": S.players.push({name:""}); persist(); render(); document.getElementById("p"+(S.players.length-1))?.focus(); break;
+    case "rm": S.players.splice(i,1); persist(); render(); break;
+    case "imp-": S.imp=Math.max(1,S.imp-1); persist(); render(); break;
+    case "imp+": S.imp=Math.min(maxImp(),S.imp+1); persist(); render(); break;
+    case "white": S.white=!S.white; if(S.imp>maxImp()) S.imp=maxImp(); persist(); render(); break;
+    case "cat": { const c=b.dataset.c; S.cats = S.cats.includes(c)? S.cats.filter(x=>x!==c) : [...S.cats,c]; persist(); render(); break; }
+    case "diff": S.diff=b.dataset.d; persist(); render(); break;
+    case "saveCustom": {
+      const lines = document.getElementById("customTa").value.split("\n").map(l=>l.split("/").map(x=>x.trim())).filter(p=>p.length===2&&p[0]&&p[1]);
+      S.custom = lines;
+      if(lines.length && !S.cats.includes(CUSTOM_CAT)) S.cats.push(CUSTOM_CAT);
+      if(!lines.length) S.cats = S.cats.filter(c=>c!==CUSTOM_CAT);
+      persist(); render(); document.querySelector("details")?.setAttribute("open",""); break;
+    }
+    case "start": startGame(); break;
+    case "next": G.seen=false; if(G.turn<G.players.length-1){G.turn++; go("pass");} else go("discuss"); break;
+    case "peekPick": go("peekPick"); break;
+    case "peek": G.peekI=i; G.seen=false; go("peek"); break;
+    case "peekDone": G.seen=false; go("discuss"); break;
+    case "back": go("discuss"); break;
+    case "toVote": go("vote"); break;
+    case "pick": sel=i; render(); break;
+    case "unpick": sel=null; render(); break;
+    case "eliminate": { const p=G.players[sel]; p.alive=false; p.out=G.round; G.elim=sel; go("reveal"); break; }
+    case "toGuess": G.guessShown=false; go("guess"); break;
+    case "showWord": G.guessShown=true; render(); break;
+    case "wGuess": if(b.dataset.r==="1"){ G.winner="wht"; go("end"); } else { const w=checkWin(); if(w){G.winner=w; go("end");} else { G.round++; go("discuss"); } } break;
+    case "nextRound": G.round++; go("discuss"); break;
+    case "end": G.winner=checkWin(); go("end"); break;
+    case "setup": err=""; go("setup"); break;
+  }
+});
+
+function start(data){
+  S = data?.S || defaults();
+  G = data?.G || null;
+  screen = data?.screen && (data.G || data.screen==="setup") ? data.screen : "setup";
+  render();
+}
+window.claude?.hot?.snapshot?.(()=>({S,G,screen}));
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+</script>
+</body>
+</html>
